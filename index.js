@@ -22,8 +22,8 @@ app.get('/', async (req, res) => {
 });
 
 // Endpoint for payout transfer
-app.post('/payout-transfer/', async (req, res) => {
-    print(`post request at /payment-transfer: `, req);
+app.post('/payout-transfer', async (req, res) => {
+    print(`post request at /payment-transfer: `);
     print(`req.body = `, req.body);
     const err = validatePayoutTransferRequest(req.body);
     if (err != null) {
@@ -43,8 +43,8 @@ app.post('/payout-transfer/', async (req, res) => {
     }
 });
 
-app.post('/callback/', async (req, res) => {
-    print(`post request at /callback: `, req);
+app.post('/callback', async (req, res) => {
+    print(`post request at /callback: `);
     print(`req.body = `, req.body);
     try {
         // TODO: handle the callback here
@@ -58,8 +58,8 @@ app.post('/callback/', async (req, res) => {
     }
 });
 
-app.post('/payout-status/', async (req, res) => {
-    print(`post request at /payout-status: `, req);
+app.post('/payout-status', async (req, res) => {
+    print(`post request at /payout-status: `);
     print(`req.body = `, req.body);
     const err = !req.body.OrderID ? "OrderID is required" : null;
     if (err != null) {
