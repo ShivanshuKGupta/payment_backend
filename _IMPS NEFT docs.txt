@@ -1,0 +1,115 @@
+Request API
+https://ibrpay.com/api/PayoutLive.aspx
+
+Note
+APIID is your LoginID, Token - Get From IP register Page
+
+
+Status Type      Value 
+Success          TXN
+Pending          TXN 
+Failed           ERR
+
+# Payout Transfer
+
+Request
+{
+	"APIID": "TXN",
+	"Token": "success",
+	"MethodName": "payout",
+	"OrderID":"",
+    "Name":"",
+    "Amount":"",
+    "number":"",
+    "ifsc":"",  
+    "PaymentType":"",
+    "CustomerMobileNo":""
+}
+
+Responce Success
+{
+	"code": "TXN",
+	"status": "success",
+	"mess": "success",
+	"data": {
+		"OrderID": "xxxx",
+		"Name": "xxxxx",
+		"Amount": "xxxx",
+		"Number": "xxxx",
+        "IFSC": "xxxx",
+        "Surcharge": "xxxx",
+		"Status": "xxxxx",
+		"STID": "Bank",
+        "Message": "Bank",
+        "RRN": "Bank"
+	}
+}
+                                            
+
+
+Responce Failed
+{
+	"code": "ERR",
+	"status": "failed",
+	"mess": ""
+}
+                       
+
+
+Call Back Response
+{
+	"code": "TXN",
+	"status": "success",
+	"mess": "success",
+	"data": {
+		"OrderID": "xxxx",
+		"Name": "xxxxx",
+		"Amount": "xxxx",
+		"Number": "xxxx",
+        "IFSC": "xxxx",
+        "Surcharge": "xxxx",
+		"Status": "xxxxx",
+		"STID": "Bank",
+        "Message": "Bank",
+        "RRN": "Bank"
+	}
+}
+
+
+# Payout Status
+Request
+{
+	"APIID": "TXN",
+	"Token": "success",
+	"MethodName": "checkstatus",
+	"OrderID":"",
+   
+}
+
+Responce Success
+{
+	"code": "TXN",
+	"status": "success",
+	"mess": "success",
+	"data": {
+		"OrderID": "xxxx",
+		"Name": "xxxxx",
+		"Amount": "xxxx",
+		"Number": "xxxx",
+        "IFSC": "xxxx",
+        "Surcharge": "xxxx",
+		"Status": "xxxxx",
+		"STID": "Bank",
+        "Message": "Bank",
+        "RRN": "Bank"
+	}
+}
+
+
+Responce Failed
+{
+	"code": "ERR",
+	"status": "failed",
+	"mess": ""
+}
+                           

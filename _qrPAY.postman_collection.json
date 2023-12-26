@@ -1,0 +1,85 @@
+{
+	"info": {
+		"_postman_id": "b82b7462-e560-4754-bc8e-f9a76cec82c5",
+		"name": "qrPAY",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "21737606",
+		"_collection_link": "https://devvcqru.postman.co/workspace/Dev_team-Workspace~45afee6b-e7bc-4f52-8271-76fa4fc68d24/collection/21737606-b82b7462-e560-4754-bc8e-f9a76cec82c5?action=share&source=collection_link&creator=21737606"
+	},
+	"item": [
+		{
+			"name": "https://ibrpay.com/api/qrpay.aspx",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": " {\r\n    \"APIID\": \"Your APIID\",\r\n    \"Token\": \"fdgsdfgs-sdfsdf-sdfasdff-sadsadD\",\r\n    \"MethodName\": \"QRPAYMENAT\",\r\n    \"Name\": \"bIPIN\",\r\n    \"MobileNo\": \"6666666666\",\r\n    \"Email\": \"TEST@GMAIL.COM\"\r\n   \r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "https://ibrpay.com/api/qrpay.aspx"
+			},
+			"response": [
+				{
+					"name": "https://ibrpay.com/api/qrpay.aspx",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": " {\r\n    \"APIID\": \"Your APIID\",\r\n    \"Token\": \"fdgsdfgs-sdfsdf-sdfasdff-sadsadD\",\r\n    \"MethodName\": \"QRPAYMENAT\",\r\n    \"Name\": \"bIPIN\",\r\n    \"MobileNo\": \"6666666666\",\r\n    \"Email\": \"TEST@GMAIL.COM\"\r\n   \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "https://ibrpay.com/api/qrpay.aspx"
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Cache-Control",
+							"value": "private"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Server",
+							"value": "Microsoft-IIS/10.0"
+						},
+						{
+							"key": "X-AspNet-Version",
+							"value": "4.0.30319"
+						},
+						{
+							"key": "X-Powered-By",
+							"value": "ASP.NET"
+						},
+						{
+							"key": "Date",
+							"value": "Sun, 10 Dec 2023 18:32:42 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "61"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"code\": \"ERR\",\n    \"status\": \"failed\",\n    \"mess\": \"UnAuthorized Person\"\n}"
+				}
+			]
+		}
+	]
+}
