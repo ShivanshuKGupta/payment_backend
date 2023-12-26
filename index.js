@@ -7,7 +7,7 @@ const port = 3002;
 
 const paymentOutServer = "https://ibrpay.com/api/PayoutLive.aspx"
 const APIID = "API1022"
-const Token = "a5a8fe37-d315-41f2-b2c7-4a99e8ea3597"
+const Token = "2317f71d-ebc6-4acd-85b7-1b00f52b90df"
 
 function print(...msg) {
     console.log(...msg);
