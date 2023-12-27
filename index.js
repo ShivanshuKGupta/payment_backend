@@ -107,7 +107,7 @@ app.post('/payment-transfer', async (req, res) => {
 });
 
 app.post('/payment-callback', async (req, res) => {
-    print(`post request at /callback: `);
+    print(`post request at /payment-callback: `);
     print(`req.body = `, req.body);
     try {
         // TODO: handle the callback here
@@ -144,7 +144,6 @@ app.post('/payment-status', async (req, res) => {
 });
 
 // Wallet Load --------------------------------
-
 const upiTransferServer = "https://ibrpay.com/api/UPITransferLive.aspx";
 
 // Endpoint for UPI Transfer
@@ -171,6 +170,22 @@ app.post('/upi-transfer', async (req, res) => {
         print("Error: ", error);
     }
 });
+
+app.post('/upi-callback', async (req, res) => {
+    print(`post request at /upi-callback: `);
+    print(`req.body = `, req.body);
+    try {
+        // TODO: handle the callback here
+        res.status(200).json({
+            status: 'success',
+            message: 'Upi Callback handled successfully',
+        });
+    } catch (error) {
+        res.status(500).json({ error: `${error}` });
+        print("Error: ", error);
+    }
+});
+
 
 app.post('/upi-verification', async (req, res) => {
     print(`post request at /upi-verification: `);
