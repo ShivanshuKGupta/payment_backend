@@ -1,13 +1,17 @@
 const express = require('express');
 const axios = require('axios');
 const bodyParser = require('body-parser');
+const { WalletloadTransaction } = require('./models');
+const { generateUniqueId } = require('./utils');
 
 const app = express();
 const port = 3002;
 
 const paymentOutServer = "https://ibrpay.com/api/PayoutLive.aspx"
+const walletLoadServer = "https://ibrpay.com/api/GetAmount.aspx";
 const APIID = "API1022"
-const Token = "2317f71d-ebc6-4acd-85b7-1b00f52b90df"
+const Token = "77dcfb79-92a3-41c0-bb03-9ddd0b800130"
+// const Token = "2317f71d-ebc6-4acd-85b7-1b00f52b90df"
 
 function print(...msg) {
     console.log(...msg);
@@ -36,6 +40,7 @@ app.post('/payout-transfer', async (req, res) => {
     req.body.MethodName = "payout";
     try {
         const response = await axios.post(paymentOutServer, req.body);
+        console.log("response:", response);
         res.json(response.data);
     } catch (error) {
         res.status(500).json({ error: `${error}` });
@@ -72,6 +77,7 @@ app.post('/payout-status', async (req, res) => {
     req.body.MethodName = "checkstatus";
     try {
         const response = await axios.post(paymentOutServer, req.body);
+        console.log("response:", response);
         res.json(response.data);
     } catch (error) {
         res.status(500).json({ error: `${error}` });
@@ -80,25 +86,36 @@ app.post('/payout-status', async (req, res) => {
 });
 
 // Wallet Load --------------------------------
-
-const walletLoadServer = "https://ibrpay.com/api/GetAmount.aspx";
-
 // Endpoint for payout transfer
+// WORKING....
 app.post('/payment-transfer', async (req, res) => {
     print(`post request at /payment-transfer: `);
     print(`req.body = `, req.body);
     var err = req.body.amount ? null : "amount is required";
     err = err || req.body.redirect_url ? null : "redirect_url is required";
+    err = err || req.body.email ? null : "email is required";
     if (err != null) {
         console.error(err);
         res.status(400).json({ error: err });
         return;
     }
+    const email = req.body.email;
     req.body.APIID = APIID;
     req.body.Token = Token;
     req.body.MethodName = "collectionrequest";
     try {
         const response = await axios.post(walletLoadServer, req.body);
+        // console.log("response:", response);
+        var txnData = response.data["data"];
+        txnData.OrderId = generateUniqueId();
+        if (response.data.status == "success") {
+            const transaction = new WalletloadTransaction({
+                email: email,
+                status: "pending",
+                ...txnData
+            });
+            await transaction.save();
+        }
         res.json(response.data);
     } catch (error) {
         res.status(500).json({ error: `${error}` });
@@ -106,11 +123,33 @@ app.post('/payment-transfer', async (req, res) => {
     }
 });
 
+// WORKING....
 app.post('/payment-callback', async (req, res) => {
     print(`post request at /payment-callback: `);
     print(`req.body = `, req.body);
     try {
-        // TODO: handle the callback here
+        const updateData = req.body.data;
+        const orderKeyId = updateData["OrderKeyId"];
+
+        try {
+            const foundTransaction = await WalletloadTransaction.findOne({ OrderKeyId: orderKeyId });
+            if (!foundTransaction) {
+                throw new Error('WalletloadTransaction not found');
+            }
+            updateData.status = req.body.status;
+            updateData.OrderId = foundTransaction.OrderId;
+            if (updateData.status == "success") {
+                const amount = foundTransaction.OrderAmount;
+                const email = foundTransaction.email;
+                // update wallet amount onto firestore
+            }
+            Object.assign(foundTransaction, updateData);
+            await foundTransaction.save();
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: `${error}` });
+            return;
+        }
         res.status(200).json({
             status: 'success',
             message: 'Payment Callback handled successfully',
@@ -121,6 +160,7 @@ app.post('/payment-callback', async (req, res) => {
     }
 });
 
+// NOT - TESTED
 app.post('/payment-status', async (req, res) => {
     print(`post request at /payment-status: `);
     print(`req.body = `, req.body);
@@ -136,6 +176,7 @@ app.post('/payment-status', async (req, res) => {
     req.body.MethodName = "CheckStatus";
     try {
         const response = await axios.post(walletLoadServer, req.body);
+        console.log("response:", response);
         res.json(response.data);
     } catch (error) {
         res.status(500).json({ error: `${error}` });
@@ -143,7 +184,7 @@ app.post('/payment-status', async (req, res) => {
     }
 });
 
-// Wallet Load --------------------------------
+// Upi Transfer --------------------------------
 const upiTransferServer = "https://ibrpay.com/api/UPITransferLive.aspx";
 
 // Endpoint for UPI Transfer
@@ -164,6 +205,7 @@ app.post('/upi-transfer', async (req, res) => {
     req.body.MethodName = "upitransfer";
     try {
         const response = await axios.post(upiTransferServer, req.body);
+        console.log("response:", response);
         res.json(response.data);
     } catch (error) {
         res.status(500).json({ error: `${error}` });
@@ -202,6 +244,7 @@ app.post('/upi-verification', async (req, res) => {
     req.body.MethodName = "verification";
     try {
         const response = await axios.post(upiTransferServer, req.body);
+        console.log("response:", response);
         res.json(response.data);
     } catch (error) {
         res.status(500).json({ error: `${error}` });
