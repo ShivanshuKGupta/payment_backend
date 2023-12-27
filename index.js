@@ -143,56 +143,56 @@ app.post('/payment-status', async (req, res) => {
     }
 });
 
-// // Wallet Load --------------------------------
+// Wallet Load --------------------------------
 
-// const upiTransferServer = "https://ibrpay.com/api/UPITransferLive.aspx";
+const upiTransferServer = "https://ibrpay.com/api/UPITransferLive.aspx";
 
-// // Endpoint for UPI Transfer
-// app.post('/upi-transfer', async (req, res) => {
-//     print(`post request at /upi-transfer: `);
-//     print(`req.body = `, req.body);
-//     var err = req.body.OrderID ? null : "OrderID is required";
-//     err = err || req.body.Name ? null : "Name is required";
-//     err = err || req.body.Amount ? null : "Amount is required";
-//     err = err || req.body.vpa ? null : "vpa is required";
-//     if (err != null) {
-//         console.error(err);
-//         res.status(400).json({ error: err });
-//         return;
-//     }
-//     req.body.APIID = APIID;
-//     req.body.Token = Token;
-//     req.body.MethodName = "upitransfer";
-//     try {
-//         const response = await axios.post(upiTransferServer, req.body);
-//         res.json(response.data);
-//     } catch (error) {
-//         res.status(500).json({ error: `${error}` });
-//         print("Error: ", error);
-//     }
-// });
+// Endpoint for UPI Transfer
+app.post('/upi-transfer', async (req, res) => {
+    print(`post request at /upi-transfer: `);
+    print(`req.body = `, req.body);
+    var err = req.body.OrderID ? null : "OrderID is required";
+    err = err || req.body.Name ? null : "Name is required";
+    err = err || req.body.Amount ? null : "Amount is required";
+    err = err || req.body.vpa ? null : "vpa is required";
+    if (err != null) {
+        console.error(err);
+        res.status(400).json({ error: err });
+        return;
+    }
+    req.body.APIID = APIID;
+    req.body.Token = Token;
+    req.body.MethodName = "upitransfer";
+    try {
+        const response = await axios.post(upiTransferServer, req.body);
+        res.json(response.data);
+    } catch (error) {
+        res.status(500).json({ error: `${error}` });
+        print("Error: ", error);
+    }
+});
 
-// app.post('/upi-verification', async (req, res) => {
-//     print(`post request at /upi-verification: `);
-//     print(`req.body = `, req.body);
-//     const err = !req.body.OrderID ? "OrderID is required" : null;
-//     err = err || !req.body.vpa ? "vpa is required" : null;
-//     if (err != null) {
-//         console.error(err);
-//         res.status(400).json({ error: err });
-//         return;
-//     }
-//     req.body.APIID = APIID;
-//     req.body.Token = Token;
-//     req.body.MethodName = "verification";
-//     try {
-//         const response = await axios.post(upiTransferServer, req.body);
-//         res.json(response.data);
-//     } catch (error) {
-//         res.status(500).json({ error: `${error}` });
-//         print("Error: ", error);
-//     }
-// });
+app.post('/upi-verification', async (req, res) => {
+    print(`post request at /upi-verification: `);
+    print(`req.body = `, req.body);
+    const err = !req.body.OrderID ? "OrderID is required" : null;
+    err = err || !req.body.vpa ? "vpa is required" : null;
+    if (err != null) {
+        console.error(err);
+        res.status(400).json({ error: err });
+        return;
+    }
+    req.body.APIID = APIID;
+    req.body.Token = Token;
+    req.body.MethodName = "verification";
+    try {
+        const response = await axios.post(upiTransferServer, req.body);
+        res.json(response.data);
+    } catch (error) {
+        res.status(500).json({ error: `${error}` });
+        print("Error: ", error);
+    }
+});
 
 // ========================================================
 app.listen(port, () => {
