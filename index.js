@@ -116,9 +116,28 @@ app.post('/payout-transfer', async (req, res) => {
     }
     try {
         const response = await axios.post(paymentOutServer, req.body);
-        var txnData = response.data["data"];
+        // const response = {
+        //     "data": {
+        //         "code": "TXN",
+        //         "status": "success",
+        //         "mess": "success",
+        //         "data": {
+        //             "OrderID": req.body.OrderID,
+        //             "Name": req.body.Name,
+        //             "Amount": req.body.Amount,
+        //             "Number": req.body.Number,
+        //             "IFSC": req.body.IFSC,
+        //             "Surcharge": req.body.Surcharge,
+        //             "Status": "success",
+        //             "STID": "Bank",
+        //             "Message": "Bank",
+        //             "RRN": "Bank"
+        //         }
+        //     }
+        // };
         // console.log("response:", response);
         if (response.data.status == "success") {
+            var txnData = response.data["data"];
             const transaction = new PayoutTransaction({
                 email: email,
                 status: "pending",
@@ -237,7 +256,6 @@ app.post('/payment-callback', async (req, res) => {
     try {
         const updateData = req.body.data;
         const orderKeyId = updateData["OrderKeyId"];
-
         try {
             const foundTransaction = await WalletloadTransaction.findOne({ OrderKeyId: orderKeyId });
             if (!foundTransaction) {
@@ -249,6 +267,8 @@ app.post('/payment-callback', async (req, res) => {
                 const amount = foundTransaction.OrderAmount;
                 const email = foundTransaction.email;
                 updateWallet(amount, email);
+            } else {
+                console.error("Payment not successful:", updateData);
             }
             Object.assign(foundTransaction, updateData);
             await foundTransaction.save();

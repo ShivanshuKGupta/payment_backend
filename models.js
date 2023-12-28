@@ -95,31 +95,31 @@ const payoutTransactionSchema = new mongoose.Schema({
     },
     Status: {
         type: String,
-        required: true
+        required: false
     },
     OrderID: {
         type: String,
-        required: true
+        required: false
     },
     Name: {
         type: String,
-        required: true
+        required: false
     },
     Amount: {
         type: String,
-        required: true
+        required: false
     },
-    number: {
+    Number: {
         type: String,
-        required: true
+        required: false
     },
-    ifsc: {
+    IFSC: {
         type: String,
-        required: true
+        required: false
     },
     PaymentType: {
         type: String,
-        required: true
+        required: false
     },
     CustomerMobileNo: {
         type: String,
