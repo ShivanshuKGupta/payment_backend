@@ -233,11 +233,11 @@ app.post('/payment-transfer', async (req, res) => {
         const response = await axios.post(walletLoadServer, req.body);
         // console.log("response:", response);
         var txnData = response.data["data"];
-        txnData.OrderId = generateUniqueId();
         if (response.data.status == "success") {
             const transaction = new WalletloadTransaction({
                 email: email,
                 status: "pending",
+                OrderId: generateUniqueId(),
                 ...txnData
             });
             await transaction.save();
