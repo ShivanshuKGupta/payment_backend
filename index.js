@@ -15,7 +15,7 @@ const firestore = admin.firestore();
 const app = express();
 const port = 3002;
 
-const paymentOutServer = "https://ibrpay.com/api/PayoutLive.aspx"
+const paymentOutServer = "https://ibrpay.com/api/PayoutLive.aspx";
 const walletLoadServer = "https://ibrpay.com/api/GetAmount.aspx";
 const APIID = "API1022"
 // const Token = "90c9e9ca-8762-41af-8ed9-cd78873d01eb"
@@ -24,8 +24,12 @@ const Token = "2317f71d-ebc6-4acd-85b7-1b00f52b90df"
 function print(...msg) {
     console.log(...msg);
 }
-function updateWallet(amountString, email) {
-    const amount = parseFloat(amountString);
+function updateWallet(amountString, email, negate) {
+    console.log(`updating wallet ${email}: ${amountString}`);
+    var amount = parseFloat(amountString);
+    if (negate) {
+        amount = -amount;
+    }
     if (isNaN(amount)) {
         console.error('Invalid amount:', amountString);
         return;
@@ -170,7 +174,7 @@ app.post('/callback', async (req, res) => {
             if (updateData.status == "success" && foundTransaction.status != "success") {
                 const amount = foundTransaction.Amount;
                 const email = foundTransaction.email;
-                updateWallet(-amount, email);
+                updateWallet(amount, email, true);
             }
             Object.assign(foundTransaction, updateData);
             await foundTransaction.save();
@@ -266,7 +270,7 @@ app.post('/payment-callback', async (req, res) => {
             if (updateData.status == "success" && foundTransaction.status != "success") {
                 const amount = foundTransaction.OrderAmount;
                 const email = foundTransaction.email;
-                updateWallet(amount, email);
+                updateWallet(amount, email, false);
             } else {
                 console.error("Payment not successful:", updateData);
             }
