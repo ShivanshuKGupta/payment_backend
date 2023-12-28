@@ -2,8 +2,8 @@ function validatePayoutTransferRequest(data) {
     requiredFields = [];
     if (!data) {
         return 'No data provided';
-    } else if (!data.OrderID) {
-        requiredFields.push('OrderID');
+    } else if (!data.email) {
+        requiredFields.push('email');
     } else if (!data.Name) {
         requiredFields.push('Name');
     }

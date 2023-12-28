@@ -1,8 +1,16 @@
 const express = require('express');
 const axios = require('axios');
 const bodyParser = require('body-parser');
-const { WalletloadTransaction } = require('./models');
+const { WalletloadTransaction, PayoutTransaction } = require('./models');
 const { generateUniqueId } = require('./utils');
+var admin = require("firebase-admin");
+var serviceAccount = require(__dirname + "/garuda-matka-firebase-adminsdk-2j4af-0448bc81f6.json");
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+});
+
+const firestore = admin.firestore();
 
 const app = express();
 const port = 3002;
@@ -10,11 +18,63 @@ const port = 3002;
 const paymentOutServer = "https://ibrpay.com/api/PayoutLive.aspx"
 const walletLoadServer = "https://ibrpay.com/api/GetAmount.aspx";
 const APIID = "API1022"
-const Token = "77dcfb79-92a3-41c0-bb03-9ddd0b800130"
+const Token = "3e5bada2-e17a-476a-8eea-2e3de0996204"
 // const Token = "2317f71d-ebc6-4acd-85b7-1b00f52b90df"
 
 function print(...msg) {
     console.log(...msg);
+}
+function updateWallet(amountString, email) {
+    const amount = parseFloat(amountString);
+    if (isNaN(amount)) {
+        console.error('Invalid amount:', amountString);
+        return;
+    }
+    const userRef = firestore.collection('users').where('email', '==', email);
+    userRef.get()
+        .then((querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+                const currentWallet = doc.data().wallet || 0;
+                const newWallet = currentWallet + amount;
+                doc.ref.update({ wallet: newWallet });
+            });
+        })
+        .catch((error) => {
+            console.error('Error updating wallet:', error);
+        });
+}
+
+async function getWalletAmount(email) {
+    const db = admin.firestore();
+    try {
+        const userRef = db.collection('users').where('email', '==', email);
+        const querySnapshot = await userRef.get();
+        if (querySnapshot.empty) {
+            return 0;
+        }
+        const userDoc = querySnapshot.docs[0];
+        const walletAmount = userDoc.data().wallet || 0;
+        return walletAmount;
+    } catch (error) {
+        console.error('Error getting wallet amount:', error);
+        throw error;
+    }
+}
+
+async function checkPendingTransactionExists(email) {
+    try {
+        const existingTransaction = await PayoutTransaction.findOne({
+            email: email,
+            status: 'pending'
+        });
+        if (existingTransaction) {
+            throw new Error('Pending transaction already exists for this email');
+        }
+    } catch (error) {
+        console.error('Error checking pending transaction:', error);
+        return false;
+    }
+    return true;
 }
 
 const validatePayoutTransferRequest = require('./validations');
@@ -23,6 +83,10 @@ app.use(bodyParser.json());
 
 app.get('/', async (req, res) => {
     res.sendFile(__dirname + '/index.html');
+});
+
+app.get('/redirect', async (req, res) => {
+    res.sendFile(__dirname + '/redirect_page.html');
 });
 
 // Endpoint for payout transfer
@@ -35,12 +99,35 @@ app.post('/payout-transfer', async (req, res) => {
         res.status(400).json({ error: err });
         return;
     }
+    const Amount = req.body.Amount;
+    const email = req.body.email;
+    const balance = await getWalletAmount(email);
+    if (balance < Amount) {
+        res.status(400).json({ error: "Insufficient Balance" });
+        return;
+    }
     req.body.APIID = APIID;
     req.body.Token = Token;
     req.body.MethodName = "payout";
+    req.body.OrderID = generateUniqueId();
+    if (!await checkPendingTransactionExists(email)) {
+        res.status(400).json({ error: "Pending transaction already exists for this email" });
+        return;
+    }
     try {
         const response = await axios.post(paymentOutServer, req.body);
-        console.log("response:", response);
+        var txnData = response.data["data"];
+        // console.log("response:", response);
+        if (response.data.status == "success") {
+            const transaction = new PayoutTransaction({
+                email: email,
+                status: "pending",
+                ...txnData
+            });
+            await transaction.save();
+        } else {
+            console.log("payout not successful:", response.data);
+        }
         res.json(response.data);
     } catch (error) {
         res.status(500).json({ error: `${error}` });
@@ -52,7 +139,27 @@ app.post('/callback', async (req, res) => {
     print(`post request at /callback: `);
     print(`req.body = `, req.body);
     try {
-        // TODO: handle the callback here
+        const updateData = req.body.data;
+        const OrderID = updateData["OrderID"];
+        try {
+            const foundTransaction = await PayoutTransaction.findOne({ OrderID: OrderID });
+            if (!foundTransaction) {
+                throw new Error('PayoutTransaction not found');
+            }
+            updateData.status = req.body.status;
+            updateData.OrderID = foundTransaction.OrderID;
+            if (updateData.status == "success" && foundTransaction.status != "success") {
+                const amount = foundTransaction.Amount;
+                const email = foundTransaction.email;
+                updateWallet(-amount, email);
+            }
+            Object.assign(foundTransaction, updateData);
+            await foundTransaction.save();
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: `${error}` });
+            return;
+        }
         res.status(200).json({
             status: 'success',
             message: 'Callback handled successfully',
@@ -138,10 +245,10 @@ app.post('/payment-callback', async (req, res) => {
             }
             updateData.status = req.body.status;
             updateData.OrderId = foundTransaction.OrderId;
-            if (updateData.status == "success") {
+            if (updateData.status == "success" && foundTransaction.status != "success") {
                 const amount = foundTransaction.OrderAmount;
                 const email = foundTransaction.email;
-                // update wallet amount onto firestore
+                updateWallet(amount, email);
             }
             Object.assign(foundTransaction, updateData);
             await foundTransaction.save();

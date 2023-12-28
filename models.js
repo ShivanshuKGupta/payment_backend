@@ -84,6 +84,66 @@ const walletloadTransactionSchema = new mongoose.Schema({
     }
 });
 
-const WalletloadTransaction = mongoose.model('WalletloadTransaction', walletloadTransactionSchema);
+const payoutTransactionSchema = new mongoose.Schema({
+    email: {
+        type: String,
+        required: true
+    },
+    status: {
+        type: String,
+        required: true
+    },
+    Status: {
+        type: String,
+        required: true
+    },
+    OrderID: {
+        type: String,
+        required: true
+    },
+    Name: {
+        type: String,
+        required: true
+    },
+    Amount: {
+        type: String,
+        required: true
+    },
+    number: {
+        type: String,
+        required: true
+    },
+    ifsc: {
+        type: String,
+        required: true
+    },
+    PaymentType: {
+        type: String,
+        required: true
+    },
+    CustomerMobileNo: {
+        type: String,
+        required: false
+    },
+    Surcharge: {
+        type: String,
+        required: false
+    },
+    STID: {
+        type: String,
+        required: false
+    },
+    Message: {
+        type: String,
+        required: false
+    },
+    RRN: {
+        type: String,
+        required: false
+    }
+});
 
-module.exports = { WalletloadTransaction };
+const WalletloadTransaction = mongoose.model('WalletloadTransaction', walletloadTransactionSchema);
+const PayoutTransaction = mongoose.model('PayoutTransaction', payoutTransactionSchema);
+
+module.exports = { WalletloadTransaction, PayoutTransaction };
