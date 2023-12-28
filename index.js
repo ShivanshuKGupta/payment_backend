@@ -18,8 +18,8 @@ const port = 3002;
 const paymentOutServer = "https://ibrpay.com/api/PayoutLive.aspx"
 const walletLoadServer = "https://ibrpay.com/api/GetAmount.aspx";
 const APIID = "API1022"
-// const Token = "3e5bada2-e17a-476a-8eea-2e3de0996204"
-const Token = "2317f71d-ebc6-4acd-85b7-1b00f52b90df"
+const Token = "90c9e9ca-8762-41af-8ed9-cd78873d01eb"
+// const Token = "2317f71d-ebc6-4acd-85b7-1b00f52b90df"
 
 function print(...msg) {
     console.log(...msg);
@@ -237,8 +237,8 @@ app.post('/payment-transfer', async (req, res) => {
             const transaction = new WalletloadTransaction({
                 email: email,
                 status: "pending",
+                ...txnData,
                 OrderId: generateUniqueId(),
-                ...txnData
             });
             await transaction.save();
         }
