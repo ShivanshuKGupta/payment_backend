@@ -34,18 +34,45 @@ function updateWallet(amountString, email, negate) {
         console.error('Invalid amount:', amountString);
         return;
     }
+    const currentTime = new Date().toISOString();
+
     const userRef = firestore.collection('users').where('email', '==', email);
     userRef.get()
         .then((querySnapshot) => {
             querySnapshot.forEach((doc) => {
                 const currentWallet = doc.data().wallet || 0;
                 const newWallet = currentWallet + amount;
-                doc.ref.update({ wallet: newWallet, updatedAt: new Date().toISOString() });
+                doc.ref.update({ wallet: newWallet, updatedAt: currentTime });
             });
         })
         .catch((error) => {
             console.error('Error updating wallet:', error);
         });
+    const walletCollection = firestore.collection('wallet');
+
+    currentTime = new Date().toLocaleString('en-US', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true,
+    });
+
+    walletCollection.add({
+        email: email,
+        wallet: amount,
+        time: currentTime,
+    })
+        .then((docRef) => {
+            console.log('Document added with ID:', docRef.id);
+        })
+        .catch((error) => {
+            console.error('Error adding document:', error);
+        });
+
+
 }
 
 async function getWalletAmount(email) {
